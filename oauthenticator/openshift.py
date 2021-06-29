@@ -51,14 +51,14 @@ class OpenShiftOAuthenticator(OAuthenticator):
     @default("ca_certs")
     def _ca_certs_default(self):
         ca_cert_file = "/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-        if self.validate_cert and os.path.exists(ca_cert_file):
+        if self.validate_server_cert and os.path.exists(ca_cert_file):
             return ca_cert_file
         return ''
 
     @default("system_ca_certs")
     def _system_ca_certs_default(self):
         ca_cert_file = "/etc/pki/tls/cert.pem"
-        if self.validate_cert and os.path.exists(ca_cert_file):
+        if self.validate_server_cert and os.path.exists(ca_cert_file):
             return ca_cert_file
         return ''
 
@@ -68,7 +68,7 @@ class OpenShiftOAuthenticator(OAuthenticator):
     def _openshift_auth_api_url_default(self):
         auth_info_url = '%s/.well-known/oauth-authorization-server' % self.openshift_url
 
-        resp = requests.get(auth_info_url, verify=self.ca_certs or self.validate_cert)
+        resp = requests.get(auth_info_url, verify=self.ca_certs or self.validate_server_cert)
         resp_json = resp.json()
 
         return resp_json.get('issuer')
@@ -119,7 +119,7 @@ class OpenShiftOAuthenticator(OAuthenticator):
             return HTTPRequest(
                 url,
                 method="POST",
-                validate_cert=self.validate_cert,
+                validate_cert=self.validate_server_cert,
                 ca_certs=self.ca_certs if self.use_ca_certs_for_token_request else self.system_ca_certs,
                 headers={"Accept": "application/json"},
                 body='',  # Body is required for a POST...
@@ -151,7 +151,7 @@ class OpenShiftOAuthenticator(OAuthenticator):
         req = HTTPRequest(
             self.userdata_url,
             method="GET",
-            validate_cert=self.validate_cert,
+            validate_cert=self.validate_server_cert,
             ca_certs=self.ca_certs,
             headers=headers,
         )
