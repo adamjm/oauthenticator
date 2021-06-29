@@ -30,10 +30,6 @@ class OpenShiftOAuthenticator(OAuthenticator):
         config=True,
     )
 
-    validate_cert = Bool(
-        True, config=True, help="Set to False to disable certificate validation"
-    )
-
     ca_certs = Unicode(config=True)
     system_ca_certs = Unicode(config=True)
     use_ca_certs_for_token_request = True if ca_certs else False
